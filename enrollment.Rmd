@@ -1,0 +1,43 @@
+---
+title: "enrollment"
+author: "Jessica Edwards"
+date: "2/18/2020"
+output: html_document
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(reprex)
+library(gt)
+```
+
+```{r, echo=FALSE}
+x <- read_excel(path = "class_enrollment_summary_by_term2.18.20.xlsx", skip = 3) %>%
+  clean_names() %>%
+  filter(!is.na(course_name))
+
+first_five <- x %>%
+  filter(`course_department` == "Government") %>%
+  arrange(desc(u_grad)) %>%
+  select(course_title, course_name, instructor_full_name, u_grad) %>%
+  slice(1:5) %>%
+  gt() %>%
+    tab_header(title = "Top Five Government Classes by Undergraduate Enrollment") %>%
+    tab_source_note("Source: Harvard FAS Registrar's Office - Enrollment")
+
+first_five_departments <- x %>%
+  group_by(course_department) %>%
+  summarize(total = sum(total)) %>%
+  arrange(desc(total)) %>%
+  select(course_department, total) %>%
+  slice(1:5) %>%
+  gt() %>%
+    tab_header(title = "Top Five Departments by Total Enrollment") %>%
+    tab_source_note("Source: Harvard FAS Registrar's Office - Enrollment")
+
+first_five_departments
+
+```
